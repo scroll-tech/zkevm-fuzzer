@@ -7,7 +7,7 @@ use eth_types::bytecode;
 use mock::test_ctx::helpers::account_0_code_account_1_no_code;
 use mock::TestContext;
 
-struct CalldataCopyRootFuzzer;
+pub struct CalldataCopyRootFuzzer;
 
 impl Fuzzer for CalldataCopyRootFuzzer {
     fn name(&self) -> &'static str {
@@ -19,9 +19,9 @@ impl Fuzzer for CalldataCopyRootFuzzer {
         let args = CalldataCopyRootArgs::from_rng(&mut rng);
 
         let bytecode = bytecode! {
-            PUSH32(args.length)
-            PUSH32(args.data_offset)
-            PUSH32(args.memory_offset)
+            PUSH32(args.length.0)
+            PUSH32(args.data_offset.0)
+            PUSH32(args.memory_offset.0)
             #[start]
             CALLDATACOPY
             STOP
@@ -43,15 +43,16 @@ impl Fuzzer for CalldataCopyRootFuzzer {
         FuzzerCase::new(
             Box::new(args),
             ErasedCircuitTestBuilder::new_from_test_ctx(ctx).params(CircuitsParams {
+                max_rws: 64,
+                max_rlp_rows: 64,
+                max_copy_rows: MAX_CALLDATA_LENGTH * 8,
+                max_inner_blocks: 0,
+                max_exp_steps: 0,
+                max_bytecode: 128,
                 max_calldata: MAX_CALLDATA_LENGTH,
+                max_mpt_rows: 0,
                 ..CircuitsParams::default()
             }),
         )
     }
-}
-
-#[test]
-fn test_calldatacopy_root() {
-    let case = CalldataCopyRootFuzzer.gen_test_case();
-    case.test_builder.run_catch().unwrap();
 }

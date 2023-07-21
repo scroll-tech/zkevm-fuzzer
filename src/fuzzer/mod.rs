@@ -20,4 +20,4 @@ pub trait Fuzzer {
     fn gen_test_case(&self) -> FuzzerCase;
 }
 
-mod calldatacopy_root;
+pub mod calldatacopy_root;
