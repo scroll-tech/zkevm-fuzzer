@@ -4159,6 +4159,7 @@ dependencies = [
  "halo2_proofs",
  "mock",
  "mpt-zktrie",
+ "once_cell",
  "rand",
  "secp256k1-sys 0.6.1",
  "secp256k1-sys 0.8.1",

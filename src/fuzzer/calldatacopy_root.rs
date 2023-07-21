@@ -1,4 +1,4 @@
-use crate::fuzzer::{Fuzzer, FuzzerCase};
+use crate::fuzzer::{FuzzerCaseGenerator, FuzzerCase};
 use crate::input::opcodes::calldatacopy::{CalldataCopyRootArgs, MAX_CALLDATA_LENGTH};
 use crate::input::FromRng;
 use crate::test::ErasedCircuitTestBuilder;
@@ -7,9 +7,9 @@ use eth_types::bytecode;
 use mock::test_ctx::helpers::account_0_code_account_1_no_code;
 use mock::TestContext;
 
-pub struct CalldataCopyRootFuzzer;
+pub struct Fuzzer;
 
-impl Fuzzer for CalldataCopyRootFuzzer {
+impl FuzzerCaseGenerator for Fuzzer {
     fn name(&self) -> &'static str {
         "calldatacopy-root"
     }
@@ -44,11 +44,11 @@ impl Fuzzer for CalldataCopyRootFuzzer {
             Box::new(args),
             ErasedCircuitTestBuilder::new_from_test_ctx(ctx).params(CircuitsParams {
                 max_rws: 64,
-                max_rlp_rows: 64,
+                max_rlp_rows: 0,
                 max_copy_rows: MAX_CALLDATA_LENGTH * 8,
                 max_inner_blocks: 0,
                 max_exp_steps: 0,
-                max_bytecode: 128,
+                max_bytecode: 0,
                 max_calldata: MAX_CALLDATA_LENGTH,
                 max_mpt_rows: 0,
                 ..CircuitsParams::default()
