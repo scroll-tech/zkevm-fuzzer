@@ -23,9 +23,13 @@ pub trait FuzzerCaseGenerator: Send + Sync + 'static {
     fn gen_test_case(&self) -> FuzzerCase;
 }
 
+pub struct FuzzerWorker {
+
+}
+
 pub mod calldatacopy_root;
 
-static FUZZERS: Lazy<BTreeMap<&'static str, Box<dyn FuzzerCaseGenerator>>> = Lazy::new(|| {
+pub static FUZZERS: Lazy<BTreeMap<&'static str, Box<dyn FuzzerCaseGenerator>>> = Lazy::new(|| {
     let mut map = BTreeMap::<_, Box<dyn FuzzerCaseGenerator>>::new();
     let fuzzer = calldatacopy_root::Fuzzer;
     map.insert(fuzzer.name(), Box::new(fuzzer));
