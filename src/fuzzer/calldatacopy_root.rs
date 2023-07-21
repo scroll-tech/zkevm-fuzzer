@@ -1,44 +1,57 @@
+use crate::fuzzer::{Fuzzer, FuzzerCase};
+use crate::input::opcodes::calldatacopy::{CalldataCopyRootArgs, MAX_CALLDATA_LENGTH};
+use crate::input::FromRng;
+use crate::test::ErasedCircuitTestBuilder;
 use bus_mapping::circuit_input_builder::CircuitsParams;
-use eth_types::{bytecode, Word};
+use eth_types::bytecode;
 use mock::test_ctx::helpers::account_0_code_account_1_no_code;
 use mock::TestContext;
-use zkevm_circuits::test_util::CircuitTestBuilder;
-use crate::opcodes::calldatacopy::{CalldataCopyRootArgs, MAX_CALLDATA_LENGTH};
 
 struct CalldataCopyRootFuzzer;
 
-fn foo (args: CalldataCopyRootArgs) {
-    let length = Word::from_big_endian(&args.length);
-    let data_offset = Word::from_big_endian(&args.data_offset);
-    let memory_offset = Word::from_big_endian(&args.memory_offset);
+impl Fuzzer for CalldataCopyRootFuzzer {
+    fn name(&self) -> &'static str {
+        "calldatacopy-root"
+    }
 
-    let bytecode = bytecode! {
-        PUSH32(length)
-        PUSH32(data_offset)
-        PUSH32(memory_offset)
-        #[start]
-        CALLDATACOPY
-        STOP
-    };
+    fn gen_test_case(&self) -> FuzzerCase {
+        let mut rng = rand::thread_rng();
+        let args = CalldataCopyRootArgs::from_rng(&mut rng);
 
-    // Get the execution steps from the external tracer
-    let ctx = TestContext::<2, 1>::new(
-        None,
-        account_0_code_account_1_no_code(bytecode),
-        |mut txs, accs| {
-            txs[0]
-                .from(accs[1].address)
-                .to(accs[0].address)
-                .input(args.calldata.0.into());
-        },
-        |block, _tx| block.number(0xcafeu64),
-    )
+        let bytecode = bytecode! {
+            PUSH32(args.length)
+            PUSH32(args.data_offset)
+            PUSH32(args.memory_offset)
+            #[start]
+            CALLDATACOPY
+            STOP
+        };
+
+        let ctx = TestContext::<2, 1>::new(
+            None,
+            account_0_code_account_1_no_code(bytecode),
+            |mut txs, accs| {
+                txs[0]
+                    .from(accs[1].address)
+                    .to(accs[0].address)
+                    .input(args.calldata.0.clone().into());
+            },
+            |block, _tx| block.number(0xcafeu64),
+        )
         .unwrap();
 
-    CircuitTestBuilder::new_from_test_ctx(ctx)
-        .params(CircuitsParams {
-            max_calldata: MAX_CALLDATA_LENGTH,
-            ..CircuitsParams::default()
-        })
-        .run();
+        FuzzerCase::new(
+            Box::new(args),
+            ErasedCircuitTestBuilder::new_from_test_ctx(ctx).params(CircuitsParams {
+                max_calldata: MAX_CALLDATA_LENGTH,
+                ..CircuitsParams::default()
+            }),
+        )
+    }
+}
+
+#[test]
+fn test_calldatacopy_root() {
+    let case = CalldataCopyRootFuzzer.gen_test_case();
+    case.test_builder.run_catch().unwrap();
 }

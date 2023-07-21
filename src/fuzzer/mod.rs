@@ -1,15 +1,23 @@
-use arbitrary::Arbitrary;
+use crate::test::ErasedCircuitTestBuilder;
+use erased_serde::Serialize;
 
-pub trait Fuzzer<I: Arbitrary> {
-
+pub struct FuzzerCase {
+    pub input: Box<dyn Serialize>,
+    pub test_builder: ErasedCircuitTestBuilder,
 }
 
-#[test]
-fn as_trait_obj() {
-    struct Foo;
-    impl Fuzzer<u8> for Foo {}
+impl FuzzerCase {
+    pub fn new(input: Box<dyn Serialize>, test_builder: ErasedCircuitTestBuilder) -> Self {
+        Self {
+            input,
+            test_builder,
+        }
+    }
+}
 
-    let _ = Box::new(Foo as dyn Fuzzer);
+pub trait Fuzzer {
+    fn name(&self) -> &'static str;
+    fn gen_test_case(&self) -> FuzzerCase;
 }
 
 mod calldatacopy_root;
