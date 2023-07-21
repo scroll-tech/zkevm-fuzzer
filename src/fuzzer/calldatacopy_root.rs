@@ -1,4 +1,4 @@
-use crate::fuzzer::{FuzzerCaseGenerator, FuzzerCase};
+use crate::fuzzer::{FuzzerCase, FuzzerCaseGenerator};
 use crate::input::opcodes::calldatacopy::{CalldataCopyRootArgs, MAX_CALLDATA_LENGTH};
 use crate::input::FromRng;
 use crate::test::ErasedCircuitTestBuilder;
@@ -44,13 +44,8 @@ impl FuzzerCaseGenerator for Fuzzer {
             Box::new(args),
             ErasedCircuitTestBuilder::new_from_test_ctx(ctx).params(CircuitsParams {
                 max_rws: 64,
-                max_rlp_rows: 0,
                 max_copy_rows: MAX_CALLDATA_LENGTH * 8,
-                max_inner_blocks: 0,
-                max_exp_steps: 0,
-                max_bytecode: 0,
                 max_calldata: MAX_CALLDATA_LENGTH,
-                max_mpt_rows: 0,
                 ..CircuitsParams::default()
             }),
         )

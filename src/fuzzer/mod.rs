@@ -23,9 +23,7 @@ pub trait FuzzerCaseGenerator: Send + Sync + 'static {
     fn gen_test_case(&self) -> FuzzerCase;
 }
 
-pub struct FuzzerWorker {
-
-}
+pub struct FuzzerWorker {}
 
 pub mod calldatacopy_root;
 
