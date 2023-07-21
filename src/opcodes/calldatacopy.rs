@@ -10,3 +10,9 @@ pub struct CalldataCopyRootArgs {
     pub data_offset: [u8; 32],
     pub memory_offset: [u8; 32],
 }
+
+#[test]
+fn from_rng() {
+    let mut rng = rand::thread_rng();
+    println!("{:?}", CalldataCopyRootArgs::size_hint(1));
+}

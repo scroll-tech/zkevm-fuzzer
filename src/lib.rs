@@ -1,7 +1,8 @@
 use arbitrary::{Arbitrary, Unstructured};
 use std::mem::size_of;
 
-pub mod opcodes;
+mod opcodes;
+pub mod fuzzer;
 
 #[derive(Debug)]
 pub struct ArbitraryVec<const MAX: usize>(pub Vec<u8>);

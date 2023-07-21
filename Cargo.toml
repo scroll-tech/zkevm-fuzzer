@@ -5,12 +5,8 @@ edition = "2021"
 
 [lib]
 
-[[bin]]
-name = "fuzz-opcodes-calldatacopy-root"
-path = "src/fuzzer/opcodes/calldatacopy-root.rs"
-
 [dependencies]
-afl = "*"
+rand = "0.8"
 arbitrary = { version = "1.3.0", features = ["derive"] }
 # hack to compile, why they are lacking features
 secp256k1-sys-061 = { package = "secp256k1-sys", version = "0.6.1", features = ["std"] }
